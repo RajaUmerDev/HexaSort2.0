@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Tile : MonoBehaviour
@@ -18,41 +16,46 @@ public class Tile : MonoBehaviour
         _gridInterface = _dependencyOFGrid;
     }
 
+    private void Update()
+    {
+        CastRayOnTile();
+    }
 
     public void SetDependency(IGrid gridInterface)
     {
         _gridInterface = gridInterface;
     }
 
-    void Update()
-    {
-        CastRayOnTile();
-    }
-    
     private void CastRayOnTile()
     {
         RaycastHit hit;
         if (Physics.Raycast(transform.position, -Vector3.up, out hit, raycastDistance))
         {
-            GameObject newHitObject = hit.transform.gameObject;
-            if (newHitObject != _lastHitObject)
+            if (hit.transform.gameObject.CompareTag("Tiles"))
             {
-                // Reset the material of the previous hit object to its default
-                if (_lastHitObject != null)
+                GameObject newHitObject = hit.transform.gameObject;
+
+
+                if (newHitObject != _lastHitObject)
                 {
-                    _lastHitObject.GetComponent<MeshRenderer>().material = _defaultMaterial;
+                    // Reset the material of the previous hit object to its default
+                    if (_lastHitObject != null)
+                    {
+                        _lastHitObject.GetComponent<MeshRenderer>().material = _defaultMaterial;
+                    }
+
+                    // Store the new hit object and its default material
+                    _lastHitObject = newHitObject;
+                    _defaultMaterial = _lastHitObject.GetComponent<MeshRenderer>().material;
                 }
 
-                // Store the new hit object and its default material
-                _lastHitObject = newHitObject;
-                _defaultMaterial = _lastHitObject.GetComponent<MeshRenderer>().material;
+
+                // Change the material of the current hit object to the highlighted material
+                _lastHitObject.GetComponent<MeshRenderer>().material = _highlightedMaterial;
+
+                // Perform actions based on the detected object
+                // Debug.Log("Object below chip: " + _lastHitObject.name);
             }
-
-            // Change the material of the current hit object to the highlighted material
-            _lastHitObject.GetComponent<MeshRenderer>().material = _highlightedMaterial;
-
-            // Perform actions based on the detected object
-            // Debug.Log("Object below chip: " + _lastHitObject.name);
         }
         else
         {
